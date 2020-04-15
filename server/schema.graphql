@@ -1,0 +1,77 @@
+type Query {
+  users: [User!]!
+  routines: [Routine!]!
+  categories: [Category!]!
+}
+
+type Mutation {
+  signup(
+    name: String
+    job: String!
+    email: String!
+    password: String!
+  ): AuthPayload!
+  login(email: String!, password: String!): AuthPayload!
+  routine(
+    title: String!
+    description: String!
+    days: [String!]!
+    failFee: Int!
+    startDate: String!
+    endDate: String!
+    alertTime: String!
+    highPriority: Boolean
+    category: String
+  ): Routine
+}
+
+type AuthPayload {
+  user: User!
+  token: String!
+  expiresIn: Int!
+}
+
+type User {
+  id: ID!
+  name: String
+  job: String
+  email: String!
+  password: String!
+  routines: [Routine!]!
+}
+
+enum Days {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
+type Routine {
+  title: String!
+  description: String!
+  days: [Days!]!
+  failFee: Int!
+  startDate: String!
+  endDate: String!
+  alertTime: String!
+  highPriority: Boolean!
+  category: Category
+  done: Boolean!
+  addedBy: User!
+}
+
+type Category {
+  id: ID!
+  name: String!
+  addedBy: User!
+  routines: [Routine!]!
+}
+
+type Goal {
+  id: ID!
+  
+}

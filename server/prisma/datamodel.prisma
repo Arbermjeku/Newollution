@@ -1,0 +1,46 @@
+type User {
+  id: ID! @id
+  name: String
+  job: String
+  email: String! @unique
+  password: String!
+  routines: [Routine!]!
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
+
+enum Days {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
+type Routine {
+  id: ID! @id
+  title: String!
+  description: String!
+  days: [Days!]! @scalarList(strategy: RELATION)
+  failFee: Int!
+  startDate: String!
+  endDate: String!
+  alertTime: String!
+  highPriority: Boolean! @default(value: false)
+  category: Category
+  done: Boolean! @default(value: false)
+  addedBy: User!
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
+
+type Category {
+  id: ID! @id
+  name: String!
+  addedBy: User!
+  routines: [Routine!]!
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
