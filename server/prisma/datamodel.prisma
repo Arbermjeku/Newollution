@@ -5,6 +5,7 @@ type User {
   email: String! @unique
   password: String!
   routines: [Routine!]!
+  goals: [Goal!]!
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
@@ -25,8 +26,8 @@ type Routine {
   description: String!
   days: [Days!]! @scalarList(strategy: RELATION)
   failFee: Int!
-  startDate: String!
-  endDate: String!
+  startDate: DateTime!
+  endDate: DateTime!
   alertTime: String!
   highPriority: Boolean! @default(value: false)
   category: Category
@@ -44,3 +45,26 @@ type Category {
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
+
+enum Status {
+  Done
+  Uncomplete
+  Snoozed
+}
+
+type Goal {
+  id: ID! @id
+  title: String!
+  description: String!
+  goal_deadline: DateTime!
+  fee: Int!
+  snooze_fee: Int!
+  highPriority: Boolean @default(value: false)
+  status: Status @default(value: Uncomplete)
+  category: Category
+  addedBy: User!
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
+
+

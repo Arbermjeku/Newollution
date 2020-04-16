@@ -1,7 +1,8 @@
 type Query {
-  users: [User!]!
+  get_loggedIn_user: User!
   routines: [Routine!]!
   categories: [Category!]!
+  goals: [Goal!]!
 }
 
 type Mutation {
@@ -11,7 +12,9 @@ type Mutation {
     email: String!
     password: String!
   ): AuthPayload!
+
   login(email: String!, password: String!): AuthPayload!
+
   routine(
     title: String!
     description: String!
@@ -23,6 +26,17 @@ type Mutation {
     highPriority: Boolean
     category: String
   ): Routine
+
+  goal(
+    title: String!
+    description: String!
+    goal_deadline: String!
+    fee: Int!
+    snooze_fee: Int!
+    highPriority: Boolean
+    status: String
+    category: String
+  ): Goal
 }
 
 type AuthPayload {
@@ -38,6 +52,9 @@ type User {
   email: String!
   password: String!
   routines: [Routine!]!
+  goals: [Goal!]!
+  createdAt: String!
+  updatedAt: String!
 }
 
 enum Days {
@@ -51,6 +68,7 @@ enum Days {
 }
 
 type Routine {
+  id: ID!
   title: String!
   description: String!
   days: [Days!]!
@@ -62,6 +80,8 @@ type Routine {
   category: Category
   done: Boolean!
   addedBy: User!
+  createdAt: String!
+  updatedAt: String!
 }
 
 type Category {
@@ -71,7 +91,23 @@ type Category {
   routines: [Routine!]!
 }
 
+enum Status {
+  Done
+  Uncomplete
+  Snoozed
+}
+
 type Goal {
   id: ID!
-  
+  title: String!
+  description: String!
+  goal_deadline: String!
+  fee: Int!
+  snooze_fee: Int!
+  highPriority: Boolean
+  status: Status
+  category: Category
+  addedBy: User!
+  createdAt: String!
+  updatedAt: String!
 }

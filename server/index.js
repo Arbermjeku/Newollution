@@ -7,24 +7,28 @@ const Mutation = require("./resolvers/Mutation");
 const Query = require("./resolvers/Query");
 const Routine = require("./resolvers/Routines");
 const Category = require("./resolvers/Category");
+const User = require("./resolvers/User");
+const Goal = require('./resolvers/Goal')
 
 const resolvers = {
   Mutation,
   Query,
   Routine,
-  Category
+  Category,
+  User,
+  Goal,
 };
 
 const server = new GraphQLServer({
   typeDefs: "./schema.graphql",
   resolvers,
-  context: request => {
+  context: (request) => {
     return {
       ...request,
-      prisma
+      prisma,
     };
   },
-  uploades: false
+  uploades: false,
 });
 
 server.express.use(bodyParser.urlencoded({ extended: true }));
