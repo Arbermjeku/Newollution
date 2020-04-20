@@ -89,6 +89,7 @@ type Category {
   name: String!
   addedBy: User!
   routines: [Routine!]!
+  goals: [Goal!]!
 }
 
 enum Status {
