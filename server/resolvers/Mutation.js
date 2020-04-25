@@ -157,9 +157,55 @@ const goal = async (parent, args, context, info) => {
   return goal;
 };
 
+const updateRoutine = async (parent, args, context, info) => {
+  const userId = await getUserId(context)
+
+  if(args.days){
+    args.days = { set: args.days.map((x) => x) }
+  }
+
+  let categories = await context.prisma.categories({
+    where: { addedBy: { id: userId } },
+  });
+
+  if(args.category){
+      for (let i = 0; i < categories.length; i++) {
+        if (args.category == categories[i].name) {
+          args.category = {
+            connect: {
+              id: categories[i].id,
+            },
+          };
+          break;
+        } else if (args.category !== categories[i].name) {
+          args.category = {
+            update: {
+              name: args.category,
+            },
+          };
+        }
+      }
+  }
+  return context.prisma.updateRoutine({
+    data:{
+      title: args.title, 
+      description: args.description,
+      days: args.days,
+      failFee: args.failFee,
+      startDate: args.startDate,
+      endDate: args.endDate,
+      alertTime: args.alertTime,
+      highPriority: args.highPriority,
+      category: args.category,
+    },
+    where: { id: args.routineId}
+  })
+}
+
 module.exports = {
   signup,
   login,
   routine,
   goal,
+  updateRoutine
 };

@@ -9,6 +9,7 @@ const Routine = require("./resolvers/Routines");
 const Category = require("./resolvers/Category");
 const User = require("./resolvers/User");
 const Goal = require('./resolvers/Goal')
+const HighPriority = require('./resolvers/HighPriority')
 
 const resolvers = {
   Mutation,
@@ -17,6 +18,7 @@ const resolvers = {
   Category,
   User,
   Goal,
+  HighPriority
 };
 
 const server = new GraphQLServer({
