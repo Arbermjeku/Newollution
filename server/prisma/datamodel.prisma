@@ -42,6 +42,7 @@ type Category {
   name: String!
   addedBy: User!
   routines: [Routine!]!
+  goals: [Goal!]!
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }

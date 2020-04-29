@@ -51,6 +51,18 @@ type Mutation {
     highPriority: Boolean
     category: String
   ): Routine
+
+  updateGoal(
+    goalId: ID
+    title: String
+    description: String
+    goal_deadline: String
+    fee: Int
+    snooze_fee: Int
+    highPriority: Boolean
+    status: String
+    category: String
+  ): Goal
 }
 
 type AuthPayload {

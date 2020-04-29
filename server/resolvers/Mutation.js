@@ -158,37 +158,41 @@ const goal = async (parent, args, context, info) => {
 };
 
 const updateRoutine = async (parent, args, context, info) => {
-  const userId = await getUserId(context)
-
-  if(args.days){
-    args.days = { set: args.days.map((x) => x) }
+  const userId = await getUserId(context);
+  if (args.days) {
+    args.days = { set: args.days.map((x) => x) };
   }
-
   let categories = await context.prisma.categories({
     where: { addedBy: { id: userId } },
   });
 
+  let categoryName = args.category;
+  console.log(categoryName);
+
   if(args.category){
-      for (let i = 0; i < categories.length; i++) {
-        if (args.category == categories[i].name) {
-          args.category = {
-            connect: {
-              id: categories[i].id,
-            },
-          };
-          break;
-        } else if (args.category !== categories[i].name) {
-          args.category = {
-            update: {
-              name: args.category,
-            },
-          };
-        }
+    for (let i = 0; i < categories.length; i++) {
+      if (categoryName == categories[i].name) {
+        console.log("Yesss it is!");
+        args.category = {
+          connect: {
+            id: categories[i].id,
+          },
+        };
+        break;
+      } else if (categoryName !== categories[i].name) {
+        args.category = {
+          create: {
+            name: categoryName,
+            addedBy: { connect: { id: userId } },
+          },
+        };
       }
+    }
   }
+
   return context.prisma.updateRoutine({
-    data:{
-      title: args.title, 
+    data: {
+      title: args.title,
       description: args.description,
       days: args.days,
       failFee: args.failFee,
@@ -198,14 +202,56 @@ const updateRoutine = async (parent, args, context, info) => {
       highPriority: args.highPriority,
       category: args.category,
     },
-    where: { id: args.routineId}
-  })
-}
+    where: { id: args.routineId },
+  });
+};
+
+const updateGoal = async (parent, args, context, info) => {
+  const userId = await getUserId(context);
+
+  let categories = await context.prisma.categories({
+    where: { addedBy: { id: userId } },
+  });
+
+  let categoryName = args.category;
+  if(args.category){
+    for (let i = 0; i < categories.length; i++) {
+      if (categoryName == categories[i].name) {
+        args.category = {
+          connect: { id: categories[i].id },
+        };
+        break;
+      } else if (categoryName !== categories[i].name) {
+        args.category = {
+          create: {
+            name: categoryName,
+            addedBy: { connect: { id: userId } },
+          },
+        };
+      }
+    }
+  }
+
+  return context.prisma.updateGoal({
+    data: {
+      title: args.title,
+      description: args.description,
+      goal_deadline: args.goal_deadline,
+      fee: args.fee,
+      snooze_fee: args.snooze_fee,
+      status: args.status,
+      category: args.category,
+      highPriority: args.highPriority,
+    },
+    where: { id: args.goalId },
+  });
+};
 
 module.exports = {
   signup,
   login,
   routine,
   goal,
-  updateRoutine
+  updateRoutine,
+  updateGoal,
 };
