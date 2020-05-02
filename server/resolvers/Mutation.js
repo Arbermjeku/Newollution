@@ -1,6 +1,8 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { getUserId, APP_SECRET } = require("../utils");
+const { get_extension, processUpload } = require('../fileUpload/fileUpload');
+
 
 const saltRounds = 10;
 
@@ -9,11 +11,14 @@ const signup = async (parent, args, context, info) => {
     return Error("Please fill all the required fields!");
   }
 
+  let user_profile_image = await processUpload(args.user_avatar)
+
   const hashed = await bcrypt.hash(args.password, saltRounds);
 
   const user = await context.prisma.createUser(
     {
       ...args,
+      user_avatar: { create: user_profile_image },
       password: hashed,
     },
     `{ id name job email }`
@@ -169,7 +174,7 @@ const updateRoutine = async (parent, args, context, info) => {
   let categoryName = args.category;
   console.log(categoryName);
 
-  if(args.category){
+  if (args.category) {
     for (let i = 0; i < categories.length; i++) {
       if (categoryName == categories[i].name) {
         console.log("Yesss it is!");
@@ -214,7 +219,7 @@ const updateGoal = async (parent, args, context, info) => {
   });
 
   let categoryName = args.category;
-  if(args.category){
+  if (args.category) {
     for (let i = 0; i < categories.length; i++) {
       if (categoryName == categories[i].name) {
         args.category = {
@@ -247,6 +252,37 @@ const updateGoal = async (parent, args, context, info) => {
   });
 };
 
+const updateCategory = async (parent, args, context, info) => {
+  const userId = await getUserId(context);
+  return context.prisma.updateCategory({
+    data: {
+      name: args.name,
+    },
+    where: { id: args.categoryId },
+  });
+};
+
+const deleteRoutine = async (parent, args, context, info) => {
+  const userId = await getUserId(context);
+  return context.prisma.deleteRoutine({
+    id: args.routineId,
+  });
+};
+
+const deleteGoal = async (parent, args, context, info) => {
+  const userId = await getUserId(context);
+  return context.prisma.deleteGoal({
+    id: args.goalId,
+  });
+};
+
+const deleteCategory = async (parent, args, context, info) => {
+  const userId = await getUserId(context);
+  return context.prisma.deleteCategory({
+    id: args.categoryId,
+  });
+};
+
 module.exports = {
   signup,
   login,
@@ -254,4 +290,8 @@ module.exports = {
   goal,
   updateRoutine,
   updateGoal,
+  updateCategory,
+  deleteGoal,
+  deleteRoutine,
+  deleteCategory,
 };

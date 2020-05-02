@@ -4,6 +4,7 @@ type User {
   job: String
   email: String! @unique
   password: String!
+  user_avatar: File
   routines: [Routine!]!
   goals: [Goal!]!
   createdAt: DateTime! @createdAt
@@ -68,4 +69,12 @@ type Goal {
   updatedAt: DateTime! @updatedAt
 }
 
-
+type File {
+  id: ID! @id
+  filename: String!
+  encoding: String!
+  mimetype: String!
+  url: String! @unique
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}

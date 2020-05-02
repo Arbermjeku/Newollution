@@ -12,6 +12,7 @@ type Mutation {
     job: String!
     email: String!
     password: String!
+    user_avatar: String
   ): AuthPayload!
 
   login(email: String!, password: String!): AuthPayload!
@@ -40,7 +41,7 @@ type Mutation {
   ): Goal
 
   updateRoutine(
-    routineId: ID
+    routineId: ID!
     title: String
     description: String
     days: [String]
@@ -53,7 +54,7 @@ type Mutation {
   ): Routine
 
   updateGoal(
-    goalId: ID
+    goalId: ID!
     title: String
     description: String
     goal_deadline: String
@@ -63,6 +64,23 @@ type Mutation {
     status: String
     category: String
   ): Goal
+
+  updateCategory(
+    categoryId: ID!
+    name: String
+  ): Category
+
+  deleteRoutine(
+    routineId: ID!
+  ): Routine
+
+  deleteGoal(
+    goalId: ID!
+  ): Goal
+
+  deleteCategory(
+    categoryId: ID!
+  ): Category
 }
 
 type AuthPayload {
@@ -77,6 +95,7 @@ type User {
   job: String
   email: String!
   password: String!
+  user_avatar: File
   routines: [Routine!]!
   goals: [Goal!]!
   createdAt: String!
@@ -144,4 +163,9 @@ type HighPriority {
   routines_count: Int
   goals: [Goal!]!
   routines: [Routine!]!
+}
+
+type File {
+  id: ID!
+  url: String!
 }

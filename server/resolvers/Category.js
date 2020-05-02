@@ -15,7 +15,7 @@ const routines = async (parent, args, context, info) => {
 };
 
 const goals = async (parent, args, context, info) => {
-  const userId = getUserId(context);
+  const userId = await getUserId(context);
   return await context.prisma.goals({
     where: {
       category: { id: parent.id },
