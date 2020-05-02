@@ -1,3 +1,4 @@
 /node_modules
 /server/src
 /package-lock.json
+/server/public
