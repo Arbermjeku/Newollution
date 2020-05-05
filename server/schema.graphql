@@ -17,6 +17,20 @@ type Mutation {
 
   login(email: String!, password: String!): AuthPayload!
 
+  forgotPassword(
+    email: String!
+  ): passwordPayload!
+
+  verifyForgotPassword(
+    token: String!
+  ): passwordPayload!
+
+  resetPassword(
+    token: String!
+    new_password: String!
+    confirm_new_password: String!
+  ): passwordPayload!
+
   routine(
     title: String!
     description: String!
@@ -39,6 +53,13 @@ type Mutation {
     status: String
     category: String
   ): Goal
+
+  updateUser(
+    name: String
+    job: String
+    email: String
+    user_avatar: String
+  ): User
 
   updateRoutine(
     routineId: ID!
@@ -89,12 +110,16 @@ type AuthPayload {
   expiresIn: Int!
 }
 
+type passwordPayload{
+  success: Boolean!
+  message: String!
+}
+
 type User {
   id: ID!
   name: String
   job: String
   email: String!
-  password: String!
   user_avatar: File
   routines: [Routine!]!
   goals: [Goal!]!

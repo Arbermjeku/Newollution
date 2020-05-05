@@ -1,8 +1,10 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { getUserId, APP_SECRET } = require("../utils");
-const { get_extension, processUpload } = require('../fileUpload/fileUpload');
-
+const { processUpload } = require("../fileUpload/fileUpload");
+const api_key = process.env.API_KEY;
+const domain = process.env.DOMAIN;
+const mailgun = require("mailgun-js")({ apiKey: api_key, domain: domain });
 
 const saltRounds = 10;
 
@@ -11,7 +13,7 @@ const signup = async (parent, args, context, info) => {
     return Error("Please fill all the required fields!");
   }
 
-  let user_profile_image = await processUpload(args.user_avatar)
+  let user_profile_image = await processUpload(args.user_avatar);
 
   const hashed = await bcrypt.hash(args.password, saltRounds);
 
@@ -56,6 +58,101 @@ const login = async (parent, args, context, info) => {
     user,
     token,
     expiresIn: 1,
+  };
+};
+
+const forgotPassword = async (parent, args, context, info) => {
+  const email = args.email;
+  if (!args.email) {
+    return Error("You must provide an email!");
+  }
+  let user = await context.prisma.user({ email: email });
+  if (!user) {
+    return Error("No user found with that email");
+  }
+
+  const token = jwt.sign(
+    {
+      forgotPassword: user.id,
+    },
+    APP_SECRET
+  );
+
+  const data = {
+    from: "Arber <arbermjeku4@gmail.com>",
+    to: `${user.name} <${email}>`,
+    subject: "Reset Password",
+    text: `Go to this link ${`localhost:3000/reset/${token}`}`,
+  };
+
+  mailgun.messages().send(data, function(error, body) {
+    if (error) {
+      console.log(error);
+    }
+  });
+
+  return {
+    success: true,
+    message: "The email was sent successfuly!",
+  };
+};
+
+const verifyForgotPassword = async (root, args, context) => {
+  if (!args.token) {
+    throw new Error("Token can't be empty");
+  }
+  const token = args.token.replace("Bearer ", "");
+  return await jwt.verify(token, APP_SECRET, (err, decoded) => {
+    if (!err == true) {
+      return {
+        success: !err,
+        message: "Valid token!",
+      };
+    }
+    return {
+      success: false,
+      message: "Invalid token!",
+    };
+  });
+};
+
+const resetPassword = async (root, args, context) => {
+  if (!args.token || !args.new_password || !args.confirm_new_password) {
+    throw new Error(
+      "All the fields are requiered! You must provide a token a new Password and confirm new Password."
+    );
+  }
+  if (!(args.new_password === args.confirm_new_password)) {
+    return {
+      success: false,
+      message:
+        "New Password does not match with the confirm Password! They must be the same.",
+    };
+  }
+  const decoded = await jwt.verify(args.token, APP_SECRET, (err, decoded) => {
+    if (err) return Error("Invalid token");
+    return decoded;
+  });
+
+  if (decoded.message) {
+    return {
+      success: false,
+      message: decoded.message,
+    };
+  }
+  try {
+    const user = await context.prisma.updateUser({
+      data: {
+        password: await bcrypt.hash(args.new_password, saltRounds),
+      },
+      where: { id: decoded.forgotPassword },
+    });
+  } catch (error) {
+    return { success: false, message: error };
+  }
+  return {
+    success: true,
+    message: "Password has been successfuly updated! You can go and login now.",
   };
 };
 
@@ -160,6 +257,28 @@ const goal = async (parent, args, context, info) => {
     },
   });
   return goal;
+};
+
+const updateUser = async (parent, args, context, info) => {
+  const userId = await getUserId(context);
+
+  let uploadString = args.user_avatar;
+
+  if (uploadString) {
+    let file = await processUpload(uploadString);
+    args.user_avatar = {
+      create: file,
+    };
+  }
+
+  return context.prisma.updateUser({
+    data: {
+      ...args,
+    },
+    where: {
+      id: userId,
+    },
+  });
 };
 
 const updateRoutine = async (parent, args, context, info) => {
@@ -286,8 +405,12 @@ const deleteCategory = async (parent, args, context, info) => {
 module.exports = {
   signup,
   login,
+  forgotPassword,
+  verifyForgotPassword,
+  resetPassword,
   routine,
   goal,
+  updateUser,
   updateRoutine,
   updateGoal,
   updateCategory,

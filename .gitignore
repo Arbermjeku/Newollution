@@ -2,3 +2,4 @@
 /server/src
 /package-lock.json
 /server/public
+/server/.env
