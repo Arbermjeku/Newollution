@@ -5,6 +5,7 @@ type User {
   email: String! @unique
   password: String!
   user_avatar: File
+  confirmed: Boolean @default(value: false)
   routines: [Routine!]!
   goals: [Goal!]!
   createdAt: DateTime! @createdAt

@@ -28,6 +28,29 @@ const signup = async (parent, args, context, info) => {
 
   const token = jwt.sign({ userId: user.id }, APP_SECRET);
 
+
+  const emailToken = jwt.sign(
+    {
+      emailVerification: user.id,
+    },
+    APP_SECRET
+  );
+
+  const url = `http://localhost:3000/confirmation/${emailToken}`
+
+  const data = {
+    from: "Arber <arbermjeku4@gmail.com>",
+    to: `${user.name} <${args.email}>`,
+    subject: "Confirm Email",
+    html: `Go to this link <a href="${url}">${url}</a>`,
+  };
+
+  mailgun.messages().send(data, function(error, body) {
+    if (error) {
+      console.log(error);
+    }
+  });
+
   return {
     user,
     token,
@@ -44,6 +67,10 @@ const login = async (parent, args, context, info) => {
 
   if (!user) {
     return Error("The user with that email does not exists!");
+  }
+
+  if(user.confirmed == false){
+    return Error("You need to verify the email! An email was sent to when you registered.")
   }
 
   const valid = bcrypt.compareSync(args.password, user.password);
@@ -78,11 +105,13 @@ const forgotPassword = async (parent, args, context, info) => {
     APP_SECRET
   );
 
+  const url = `http://localhost:3000/reset/${token}`
+
   const data = {
     from: "Arber <arbermjeku4@gmail.com>",
     to: `${user.name} <${email}>`,
     subject: "Reset Password",
-    text: `Go to this link ${`localhost:3000/reset/${token}`}`,
+    html: `Go to this link <a href="${url}">${url}</a>`,
   };
 
   mailgun.messages().send(data, function(error, body) {

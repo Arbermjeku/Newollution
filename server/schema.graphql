@@ -121,6 +121,7 @@ type User {
   job: String
   email: String!
   user_avatar: File
+  confirmed: Boolean
   routines: [Routine!]!
   goals: [Goal!]!
   createdAt: String!
